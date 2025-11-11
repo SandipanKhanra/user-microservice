@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService {
 //        Using restTemplate fetch ratings for this user
         Rating[] ratings = restTemplate.getForObject("http://RATING-SERVICE/ratings/users/" + userId, Rating[].class);
         List<Rating> ratingList = Arrays.stream(ratings).map(rating -> {
-                    Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
-//                    Hotel hotel = hotelService.getHotel(rating.getHotelId());
+//                    Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+                    Hotel hotel = hotelService.getHotel(rating.getHotelId());
                     rating.setHotel(hotel);
                     return rating;
                 }

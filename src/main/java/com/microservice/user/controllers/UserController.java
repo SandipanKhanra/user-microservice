@@ -2,6 +2,7 @@ package com.microservice.user.controllers;
 
 import com.microservice.user.entities.User;
 import com.microservice.user.services.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,24 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @CircuitBreaker(name = "ratingHotelCB",fallbackMethod = "fallbackGetSingleUser")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId){
         User user = userService.getUser(userId);
         return ResponseEntity.ok(user);
+    }
+
+    /*
+        Fallback method for circuit breaker
+        Return type should be same as the one for which we are implementing CB
+     */
+
+    public ResponseEntity<User> fallbackGetSingleUser(String userId, Exception ex) {
+        User user = User.builder()
+                .name("Dummy user")
+                .email("dummy@gmail.com")
+                .about("This dummy user is created because circuit breaker is triggered")
+                .build();
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping
